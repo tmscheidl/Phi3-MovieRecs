@@ -101,4 +101,35 @@ The notebook `Plot.ipynb` visualizes the evaluation metrics to compare model per
 
 ```bash
 pip install -r requirements.txt
+```
 
+2. Run any recommendation model:
+
+```bash
+python scripts/S1.py   # Replace S1 with any model from S1 to S7
+```
+3. View or analyze the results:
+
+The results will be stored in the results/ folder as CSV files:
+
+There are some previous results:
+
+- Evaluation_Metrics_Table.csv
+
+- Recall_and_NDCG_Results.csv
+
+- System-Level_Entropy.csv
+
+You can check the visualisation of the performance using by the notebook:
+
+```bash
+jupyter notebook notebooks/Plot.ipynb
+```
+## 📚 References
+
+All theoretical underpinnings, architectural inspirations, and related works are cited in the reference/ folder using BibTeX and formatted citations.
+
+## ✅ Status
+✔ All code, models, evaluation data, and visualizations are complete.
+✔ Full experimental pipeline and findings are documented.
+✔ Models are reproducible and ready for extension or adaptation.

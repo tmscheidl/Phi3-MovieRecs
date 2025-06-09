@@ -1,0 +1,8 @@
+Model;Hit Rate;Avg. Rank;HHI;Entropy;Gini
+S1 (Simple);1.0000;3.00;0.0104;6.6136;0.0285
+S2 (Genre-Focused);0.8333;4.67;0.1000;3.3219;0.2557
+S3 (Diversify + xLSTM);0.7667;4.00;0.1000;3.3219;0.4427
+S4 (Diversify + Noise);0.1000;10.20;0.1000;3.3219;0.0483
+S5 (Surprise);0.3000;9.40;0.1000;3.3219;0.0817
+S6 (Motivate Reasoning);0.1000;10.60;0.1000;3.3219;0.1924
+S7 (Chain-of-Thought);0.1000;2.10;0.1533;0.5907;0.0104

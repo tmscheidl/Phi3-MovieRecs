@@ -1,0 +1,8 @@
+Model;Recall@5;NDCG@5
+S1 (Simple);0.0208;0.2346
+S2 (Genre-Focused);0.0208;0.1461
+S3 (Diversify + xLSTM);0.0015;0.0301
+S4 (Diversify + Noise);0.0008;0.0110
+S5 (Surprise);0.0079;0.0362
+S6 (Motivate Reasoning);0.0032;0.0073
+S7 (Chain-of-Thought);0.0125;0.0098

@@ -6,22 +6,32 @@ This repository contains practical work focused on developing and evaluating mul
 
 ## 📁 Repository Structure
 
-####├── scripts/
-####│ ├── S1.py ... S7.py # Models S1 to S7
-####├── notebooks/
-####│ ├─ Plot.ipynb # Visualizations of evaluation results
-####│ └── Movie_rec.ipynb
-####│
-####├── results/
-####│ ├── Evaluation_Metrics_Table.csv
-####│ ├── Recall_and_NDCG_Results.csv
-####│ └── System-Level_Entropy.csv
-####├── data/ # Processed MovieLens data
-####├── model/ # Mode description
-####├── reference/ # Bibliography and citations
-####├── requirements.txt # Python dependencies
-####└── README.md
+```text
+├── scripts/                       # Python scripts for each model (S1 to S7)
+│   ├── S1.py
+│   ├── S2.py
+│   ├── S3.py
+│   ├── S4.py
+│   ├── S5.py
+│   ├── S6.py
+│   └── S7.py
+│
+├── notebooks/                    # Jupyter notebooks
+│   ├── Plot.ipynb                # Visualizations of evaluation results
+│   └── Movie_rec.ipynb           # Full pipeline: loading, evaluation, metrics
+│
+├── results/                      # Evaluation outputs
+│   ├── Evaluation_Metrics_Table.csv
+│   ├── Recall_and_NDCG_Results.csv
+│   └── System-Level_Entropy.csv
+│
+├── data/                         # Preprocessed MovieLens data
+├── model/                        # Model architecture and configuration
+├── reference/                    # Academic references and citations
+├── requirements.txt              # Python dependencies
+└── README.md                     # Project overview and documentation
 
+```
 
 ---
 

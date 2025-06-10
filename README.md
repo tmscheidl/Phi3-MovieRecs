@@ -75,7 +75,16 @@ Models are assessed using both relevance- and diversity-oriented metrics:
 
 ### 4. Visualization and Analysis
 
-The notebook `Plot.ipynb` visualizes the evaluation metrics to compare model performances in terms of trade-offs between accuracy and diversity.
+The notebook `Plot.ipynb` visualizes evaluation metrics using a variety of plots to compare model performances, including:
+
+- Normalized Metric Comparison Across Models (bar chart)  
+- Recall@5 and NDCG@5 comparison (bar chart)  
+- Diversity metrics (HHI, Entropy, Gini, System-Level Entropy) across models (bar chart)  
+- Radar plots for individual models and all models together  
+- Line plot of normalized metrics by model  
+- Heatmap of model performance across users and metrics  
+- Scatter plot showing Accuracy vs Diversity  
+- Horizontal bar chart for System-Level Entropy
 
 ---
 

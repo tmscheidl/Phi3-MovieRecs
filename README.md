@@ -136,7 +136,7 @@ jupyter notebook notebooks/Plot.ipynb
 ```
 ## 📚 References
 
-All theoretical underpinnings, architectural inspirations, and related works are cited in the reference/ folder using BibTeX and formatted citations.
+This practical work is inspired by the GitHub repository [Benchmark_RecLLM_Fairness](https://github.com/yasdel/Benchmark_RecLLM_Fairness) and is based on the methodology and findings presented in the paper “Benchmarking Large Language Models as Recommender Systems” (Delbar et al., 2024), available in the `reference/` folder.
 
 ## ✅ Status
 ✔ All code, models, evaluation data, and visualizations are complete.

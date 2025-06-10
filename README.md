@@ -1,6 +1,6 @@
 # LLM-Based Movie Recommender Systems
 
-This repository contains practical work focused on developing and evaluating multiple movie recommender system models using large language models (LLMs). The objective is to explore diverse recommendation strategies—from genre-based filtering to chain-of-thought (COT) explanation-enhanced approaches—aimed at improving accuracy, diversity, and transparency in movie recommendations.
+This repository contains practical work focusing on the development and evaluation of models for several movie recommender systems using large language models (LLMs). The aim is to explore different recommender strategies - from genre-based filtering to chain-of-thought (COT) approaches with annotation - and to compare these different models in terms of accuracy, diversity and transparency in movie recommendations.
 
 ---
 

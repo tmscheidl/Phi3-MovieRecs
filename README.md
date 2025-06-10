@@ -92,25 +92,20 @@ The notebook `Plot.ipynb` visualizes evaluation metrics using a variety of plots
 
 ### Accuracy & Relevance
 
-    S1 (Simple) achieves perfect Hit Rate and leads in Recall@5 and NDCG@5, indicating strong top-5 precision. However, it suffers from low diversity, often recommending the same popular items.
-
-    S2 (Genre-Focused) and S3 (Diversify + xLSTM) maintain moderate hit rates, but lower recall and NDCG suggest many irrelevant top recommendations.
-
-    S7 (Chain-of-Thought) stands out for ranking quality (Avg. Rank = 2.10), showing its ability to surface relevant items higher—but Recall remains low, indicating room to improve overall relevance coverage.
+- S1 (Simple) achieves perfect Hit Rate and leads in Recall@5 and NDCG@5, indicating strong top-5 precision. However, it suffers from low diversity, often recommending the same popular items.
+- S2 (Genre-Focused) and S3 (Diversify + xLSTM) maintain moderate hit rates, but lower recall and NDCG suggest many irrelevant top recommendations.
+- S7 (Chain-of-Thought) stands out for ranking quality (Avg. Rank = 2.10), showing its ability to surface relevant items higher, but Recall remains low, indicating room to improve overall relevance coverage.
 
 ### Diversity & Novelty
 
-    S5 (Surprise) and S6 (Motivate Reasoning) strike a balance between novelty and diversity, with high system-level entropy and moderate Gini Index—they introduce more obscure but interesting items.
-
-    S3 (Diversify) shows signs of over-personalization (Gini = 0.4427), likely reinforcing niche user preferences too narrowly.
-
-    S7 (COT) presents promising diversity, balancing between relevance and novelty, though coverage and recall need optimization.
+- S5 (Surprise) and S6 (Motivate Reasoning) strike a balance between novelty and diversity, with high system-level entropy and moderate Gini Index. They introduce more obscure but interesting items.
+- S3 (Diversify) shows signs of over-personalization (Gini = 0.4427), likely reinforcing niche user preferences too narrowly.
+- S7 (COT) presents promising diversity, balancing between relevance and novelty, though coverage and recall need optimization.
 
  ### Explainability & Transparency
 
-    S6 and S7 lead in explainability, producing natural-language rationales that increase user trust and understanding.
-
-    Models S5–S7 prioritize human-centered transparency, making them well-suited for trust-aware applications, even at some cost to predictive accuracy.
+- S6 and S7 lead in explainability, producing natural-language rationales that increase user trust and understanding.
+- Models S5–S7 prioritize human-centered transparency, making them well-suited for trust-aware applications, even at some cost to predictive accuracy.
 
 ---
 

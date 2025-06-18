@@ -75,7 +75,7 @@ def entropy_metric(recommendations):
     return -sum((count / total) * np.log2(count / total) for count in counter.values() if count > 0)
 
 def gini_index_scores(x):
-    x = np.array(x)
+    x = np.array(x, dtype=np.float64)
     if np.amin(x) < 0:
         x -= np.amin(x)
     x += 1e-6

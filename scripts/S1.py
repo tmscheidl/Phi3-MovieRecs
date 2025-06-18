@@ -124,7 +124,7 @@ for uid in user_ids:
         "user_id": uid,
         "hit_rate": hit_rate(recommendations, ground_truth),
         "avg_rank": average_rank(recommendations, ground_truth),
-        "recall@5": recall_at_k(recommendations, ground_truth),
+        "recall@5": recall_at_k(recommendations, ground_truth, k=5),
         "ndcg@5": ndcg_at_k(recommendations, ground_truth, k=5),
         "hhi": hhi(recommendations),
         "entropy": entropy_score(recommendations),

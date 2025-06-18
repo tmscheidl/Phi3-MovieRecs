@@ -39,7 +39,7 @@ print("Datasets loaded.")
 
 # --- Gini Index ---
 def gini_index_scores(x):
-    x = np.array(x)
+    x = np.array(x, dtype=np.float64)  # Force float dtype
     if np.amin(x) < 0:
         x -= np.amin(x)
     x += 1e-6  # avoid zero division

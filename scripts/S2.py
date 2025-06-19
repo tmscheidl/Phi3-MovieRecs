@@ -39,15 +39,16 @@ print("Datasets loaded.")
 
 # --- Gini Index ---
 def gini_index_scores(x):
-    x = np.array(x, dtype=np.float64)  # Force float dtype
-    if np.amin(x) < 0:
-        x -= np.amin(x)
-    x += 1e-6  # avoid zero division
+    x = np.array(x, dtype=np.float64)  # Force float dtype at the start
+    min_val = np.amin(x)
+    if min_val < 0:
+        x = x - min_val  # avoid in-place subtraction
+    x = x + 1e-6  # avoid zero division, no in-place addition
     x_sorted = np.sort(x)
-    n = len(x)
+    n = len(x_sorted)
     cumx = np.cumsum(x_sorted)
     return (n + 1 - 2 * np.sum(cumx) / cumx[-1]) / n
-
+    
 # --- Metrics ---
 def hit_rate(recommended, ground_truth):
     return any(item in ground_truth for item in recommended)

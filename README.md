@@ -19,7 +19,7 @@ This repository contains practical work focusing on the development and evaluati
 │   └── S7_music.py
 │
 ├── notebooks/                    # Jupyter notebooks
-│   ├── Plot_movie.ipynb         # Visualizations of evaluation results
+│   ├── Plot_movie.ipynb          # Visualizations of evaluation results
 │   ├── Plot_music.ipynb  
 │   └── Movie_rec.ipynb           # Full pipeline: loading, evaluation, metrics
 │

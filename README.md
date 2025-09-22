@@ -48,15 +48,17 @@ User profiles, item metadata, and user-movie interaction histories are extracted
 
 Each Python script in the `scripts/` folder represents a recommendation model:
 
-- `S1`: Baseline recommendation (e.g., popularity-based)
-- `S2`: Strict genre-matching recommendations
-- `S3`: Diversification-focused recommender
-- `S4`: Quality-aware diversification
-- `S5`: Surprise-enhanced recommender
-- `S6`: Motivation reasoning using LLM
-- `S7`: Chain-of-Thought (COT) reasoning with LLM
+- `S1`: Baseline recommendation (e.g., popularity-based)  
+- `S2`: Strict genre-matching recommendations  
+- `S3`: Diversification-focused recommender  
+- `S4`: Quality-aware diversification  
+- `S5`: Surprise-enhanced recommender  
+- `S6`: Motivation reasoning using LLM  
+- `S7`: Chain-of-Thought (COT) reasoning with LLM  
+- `S3_music`: Adaptation of the diversification-focused recommender for the **LastFM-1K dataset** (`test_data_lastFM1k_fullInteraction_80users.csv`)  
+- `S7_music`: Adaptation of the Chain-of-Thought (COT) reasoning recommender for the **LastFM-1K dataset** (`test_data_lastFM1k_fullInteraction_80users.csv`)  
 
-Models S6 and S7 utilize the Phi-3.5-mini-instruct LLM to produce text-based reasoning or motivational explanations for their recommendations.
+Models `S6`, `S7`, and `S7_music` utilize the **Phi-3.5-mini-instruct** LLM to generate text-based reasoning or motivational explanations for their recommendations.
 
 ### 3. Evaluation Metrics
 
@@ -78,7 +80,10 @@ Models are assessed using both relevance- and diversity-oriented metrics:
 
 ### 4. Visualization and Analysis
 
-The notebook `Plot.ipynb` visualizes evaluation metrics using a variety of plots to compare model performances, including:
+The notebooks `Plot_movie.ipynb` and `Plot_music.ipynb` visualize evaluation metrics using a variety of plots to compare model performances.
+
+#### Movie Plots
+Includes:
 
 - Normalized Metric Comparison Across Models (bar chart)  
 - Recall@5 and NDCG@5 comparison (bar chart)  
@@ -87,9 +92,18 @@ The notebook `Plot.ipynb` visualizes evaluation metrics using a variety of plots
 - Line plot of normalized metrics by model  
 - Heatmap of model performance across users and metrics  
 - Scatter plot showing Accuracy vs Diversity  
-- Horizontal bar chart for System-Level Entropy
+- Horizontal bar chart for System-Level Entropy  
 
----
+#### Music Plots (S3 vs S7 on LastFM-1K dataset)
+Includes:
+
+- **Bar chart of average metrics** (Hit Rate, Avg Rank, Recall@5, NDCG@5, HHI, Entropy, Gini) comparing `S3 Diversify` vs `S7 COT`  
+- **System-level comparison** of Entropy and Gini between the two models  
+- **Radar chart** of normalized metrics to show trade-offs across dimensions  
+- **Relative improvement plot** (% improvement of `S7` over `S3` for each metric)  
+- **Scatter plot** showing the Accuracy vs Diversity trade-off (`NDCG@5` vs `Entropy`)  
+
+These plots provide insight into how diversification (S3) and reasoning-based recommendations (S7) behave differently on the **LastFM-1K dataset** (`test_data_lastFM1k_fullInteraction_80users.csv`).
 
 ## 📊 Results Summary
 

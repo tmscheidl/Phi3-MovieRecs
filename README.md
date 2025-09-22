@@ -14,10 +14,13 @@ This repository contains practical work focusing on the development and evaluati
 │   ├── S4.py
 │   ├── S5.py
 │   ├── S6.py
-│   └── S7.py
+│   ├── S7.py
+│   ├── S3_music.py
+│   └── S7_music.py
 │
 ├── notebooks/                    # Jupyter notebooks
-│   ├── Plot.ipynb                # Visualizations of evaluation results
+│   ├── Plot_movie.ipynb         # Visualizations of evaluation results
+│   ├── Plot_music.ipynb  
 │   └── Movie_rec.ipynb           # Full pipeline: loading, evaluation, metrics
 │
 ├── results/                      # Evaluation outputs

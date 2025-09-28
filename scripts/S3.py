@@ -7,27 +7,14 @@ import numpy as np
 import pandas as pd
 from collections import Counter, defaultdict
 from fuzzywuzzy import fuzz
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Device configuration
+# Device configuration (not really needed for S3, but keeping style)
 device = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
 # Paths
 data_path = os.path.join("data")
-results_path = os.path.join("results", "s7_metrics.csv")
-model_name = "microsoft/Phi-3.5-mini-instruct"
-
-# Load model and tokenizer
-print("Loading model and tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16,
-    trust_remote_code=True,
-    force_download=True
-).to(device)
-print("Model and tokenizer loaded successfully.")
+results_path = os.path.join("results", "s3_metrics.csv")
 
 # Load data
 print("Loading datasets...")
@@ -36,7 +23,7 @@ df_items_ml = pd.read_csv(os.path.join(data_path, "df_item_ml-1m.csv"))
 test_data_ml1m_fullInteraction = pd.read_csv(os.path.join(data_path, "test_data_ml1m_fullInteraction_80users.csv"))
 print("Datasets loaded.")
 
-# Helper functions
+# --- Helper Functions ---
 def normalize_list(lst):
     return [re.sub(r'[^a-zA-Z0-9 ]', '', s.lower().strip()) for s in lst]
 
@@ -74,7 +61,7 @@ def entropy_metric(recommendations):
     return -sum((count / total) * np.log2(count / total) for count in counter.values() if count > 0)
 
 def gini_index_scores(x):
-    x = np.array(x, dtype=np.float64)
+    x = np.array(x)
     if np.amin(x) < 0:
         x -= np.amin(x)
     x += 1e-6
@@ -101,107 +88,88 @@ def ndcg_at_k(recs, truths, k):
         return 0.0
     return dcg_at_k(recs, truths, k) / ideal_dcg
 
-# --- LLM Recommendation Function ---
-def get_recommendations_s7_cot(user_history, df_items, candidate_df, tokenizer, model, device, k=10):
-    watched_titles = df_items[df_items['itemId'].isin(user_history['itemId'])]['title'].tolist()
-    user_movies_str = ", ".join(watched_titles[:5])
+# --- S3 Diversify Recommendation Function ---
+def get_recommendations_s3_diversify(user_history, df_items, candidate_movies_df, k=10):
+    # Compute genre scores from user history
+    merged = pd.merge(user_history, df_items, on='itemId')
+    genre_scores = {}
+    for _, r in merged.iterrows():
+        for g in r['genres'].split('|'):
+            genre_scores[g] = genre_scores.get(g, 0) + r['rating']
 
-    prompt = (
-        f"The user has watched the following movies: {user_movies_str}. "
-        f"Please recommend {k} real movie titles that match their taste. "
-        f"List them clearly like: 1. Title - Reason"
-    )
+    # Score candidate movies
+    results = []
+    for idx, r in candidate_movies_df.iterrows():
+        gs = sum(genre_scores.get(g, 0) for g in r['genres'].split('|'))
+        pop = r['normalized_popularity']
+        noise = np.random.normal(0, 0.5)
+        bias = idx * 1e-4
+        score = gs + 0.7 * pop + noise + bias
+        results.append((r['title'], score))
 
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
-    inputs = {k: v.to(device) for k, v in inputs.items()}
+    # Select top-k
+    topk = sorted(results, key=lambda x: x[1], reverse=True)[:k]
+    titles, raw_scores = zip(*topk)
 
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=256,
-            temperature=0.9,
-            do_sample=True,
-            top_p=0.95
-        )
+    # Normalize for Gini
+    raw_scores = np.array(raw_scores)
+    if np.std(raw_scores) < 1e-3:
+        raw_scores += np.random.normal(0, 0.1, size=len(raw_scores))
+    raw_scores -= raw_scores.min()
+    raw_scores += 1e-6
+    scores = raw_scores.tolist()
 
-    decoded = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    lines = decoded.split("\n")
-    recommended_titles = []
-    for line in lines:
-        if "." in line:
-            try:
-                title_reason = line.split(".", 1)[1].strip()
-                if "-" in title_reason:
-                    title = title_reason.split("-", 1)[0].strip()
-                    recommended_titles.append(title)
-            except IndexError:
-                continue
-
-    valid_titles = candidate_df['title'].tolist()
-    filtered_titles = [title for title in recommended_titles if title in valid_titles]
-
-    return filtered_titles[:k], decoded
+    return list(titles), scores
 
 # --- Evaluation Loop ---
-user_ids = test_data_ml1m_fullInteraction['userId'].unique()[:10]
-metrics_s7 = []
-all_recommendations_s7 = []
-item_exposure_scores = defaultdict(float)
+user_ids_s3 = test_data_ml1m_fullInteraction['userId'].unique()[:10]
+metrics_s3 = []
 
-for uid in user_ids:
+for uid in user_ids_s3:
     hist = test_data_ml1m_fullInteraction[test_data_ml1m_fullInteraction['userId'] == uid]
     titles_all = df_items_ml[df_items_ml['itemId'].isin(hist['itemId'])]['title'].tolist()
+
     if len(titles_all) < 6:
         continue
 
     input_titles = titles_all[:5]
     truth = titles_all[5:]
-    candidate_movies_df_s7 = df_items_ml[~df_items_ml['title'].isin(input_titles)].copy()
 
-    pop_series = test_data_ml1m_fullInteraction['itemId'].value_counts()
-    candidate_movies_df_s7['popularity'] = candidate_movies_df_s7['itemId'].map(pop_series).fillna(0)
-    candidate_movies_df_s7['normalized_popularity'] = candidate_movies_df_s7['popularity'] / candidate_movies_df_s7['popularity'].max()
+    # Candidate movies filtered by top genres
+    user_genres = df_items_ml[df_items_ml['title'].isin(titles_all)]['genres'].str.split('|').explode().value_counts()
+    top_genres = user_genres.index[:3]
+    mask = df_items_ml['genres'].apply(lambda g: any(genre in g.split('|') for genre in top_genres))
+    candidate_movies_df_s3 = df_items_ml[mask & (~df_items_ml['title'].isin(input_titles))].copy()
 
-    recs_titles, full_response = get_recommendations_s7_cot(
-        hist, df_items_ml, candidate_movies_df_s7, tokenizer, model, device
-    )
+    # Normalize popularity
+    movie_popularity = test_data_ml1m_fullInteraction['itemId'].value_counts()
+    candidate_movies_df_s3['popularity'] = candidate_movies_df_s3['itemId'].map(movie_popularity).fillna(0)
+    max_popularity = candidate_movies_df_s3['popularity'].max()
+    candidate_movies_df_s3['normalized_popularity'] = candidate_movies_df_s3['popularity'] / max_popularity
+    candidate_movies_df_s3['normalized_popularity'] += np.random.normal(0, 0.01, size=len(candidate_movies_df_s3))
 
-    print(f"\nUser {uid}")
-    print(f"Ground truth: {truth}")
-    print(f"Recommendations: {recs_titles}")
+    # Downsample to limit size
+    candidate_movies_df_s3 = candidate_movies_df_s3.sample(min(len(candidate_movies_df_s3), 120), random_state=42)
 
-    # Simulated exposure score per rank
-    for i, title in enumerate(recs_titles):
-        score = 1.0 - 0.05 * i  # Decreasing by rank
-        item_exposure_scores[title] += score
+    # Get recommendations
+    recs_titles, recs_scores = get_recommendations_s3_diversify(hist, df_items_ml, candidate_movies_df_s3)
 
-    # Accumulate for entropy
-    all_recommendations_s7.extend(recs_titles)
-
-    metrics_s7.append({
+    metrics_s3.append({
         "hit_rate": hit_rate(recs_titles, truth),
         "avg_rank": average_rank(recs_titles, truth),
         "recall@5": recall_at_k(recs_titles, truth, k=5),
         "ndcg@5": ndcg_at_k(recs_titles, truth, k=5),
         "hhi": hhi(recs_titles),
-        "entropy": entropy_metric(recs_titles)
-        # Gini is calculated later globally
+        "entropy": entropy_metric(recs_titles),
+        "gini": gini_index_scores(recs_scores)
     })
 
 # --- Metrics Summary ---
-df_metrics_s7 = pd.DataFrame(metrics_s7)
-print("\nAverage Metrics for First 10 Users (S7 COT):")
-print(df_metrics_s7.mean())
+df_metrics_s3 = pd.DataFrame(metrics_s3)
+print("Average Metrics for First 10 Users (S3 Diversify):")
+print(df_metrics_s3.mean())
 
-print("\nSystem-Level Entropy Across All S7 Recommendations:")
-print(entropy_metric(all_recommendations_s7))
-
-print("\nSystem-Level Gini Index Across All S7 Recommendations:")
-gini_scores = list(item_exposure_scores.values())
-print(gini_index_scores(gini_scores))
-
-# Save metrics to a CSV file in the results folder
+# Save metrics
 os.makedirs("results", exist_ok=True)
-df_metrics_s7.to_csv(results_path, index=True)
-print("\nSaved metrics to", results_path)
+df_metrics_s3.to_csv(results_path, index=True)
+print("Saved metrics to", results_path)
